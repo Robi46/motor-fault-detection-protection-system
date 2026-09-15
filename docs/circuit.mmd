@@ -1,0 +1,32 @@
+flowchart LR
+  subgraph POWER[Protected motor power path]
+    PSU[DC supply 12 V] --> FUSE[F1 fuse]
+    FUSE --> SHUNT[Current sensor / shunt]
+    SHUNT --> CONTACTOR[Relay / contactor K1 NO contact]
+    CONTACTOR --> MOTOR[DC motor / conveyor load]
+    MOTOR --> RETURN[0 V return]
+  end
+
+  subgraph CONTROL[Arduino Uno control and measurement]
+    CURRENT[Current signal 0-5 V] --> A0[A0 current input]
+    TEMP[LM35 temperature 10 mV/C] --> A1[A1 temperature input]
+    HEALTH[Sensor loop health] --> D2[D2 health input]
+    D8[D8 relay driver] --> DRIVER[2N2222 + flyback diode]
+    DRIVER --> COIL[K1 coil]
+    SERIAL[USB serial monitor]
+  end
+
+  SHUNT -. scaled voltage .-> CURRENT
+  MOTOR -. thermal coupling .-> TEMP
+  D8 -. coil energizes contact .-> CONTACTOR
+  A0 --> MCU[Arduino fault logic]
+  A1 --> MCU
+  D2 --> MCU
+  MCU --> D8
+  MCU --> SERIAL
+  MCU --> LED[Run/fault LEDs]
+
+  classDef power fill:#fef3c7,stroke:#92400e,color:#111827;
+  classDef control fill:#dbeafe,stroke:#1d4ed8,color:#111827;
+  class POWER power;
+  class CONTROL control;

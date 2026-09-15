@@ -1,0 +1,6 @@
+__pycache__/
+.pytest_cache/
+*.hex
+*.elf
+*.o
+.DS_Store
