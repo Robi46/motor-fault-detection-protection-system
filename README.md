@@ -6,6 +6,12 @@ A reproducible Arduino/Proteus-style simulation of an industrial DC motor protec
 
 ![System circuit](assets/circuit.png)
 
+## Free interactive verification with Wokwi
+
+Because Proteus is commercial software and is not installed in the development environment, this repository includes a browser-based Wokwi implementation. The project files in [`wokwi/`](wokwi/) can be imported into a free Wokwi Arduino Uno workspace. They provide the same firmware, analog sensor controls, relay/contactor representation, run and fault indicators, health switch, and serial monitor.
+
+The test procedure is documented in [`docs/wokwi-test-evidence.md`](docs/wokwi-test-evidence.md). A live Wokwi project URL is not committed because the connected browser session became unavailable before the new workspace could be saved. The checked-in files are the reproducible source of truth and can be imported directly.
+
 ## System architecture
 
 The power path is deliberately separated from the control path. The motor current passes through a current-sensing element and a normally-open relay contact. The Arduino reads the scaled current signal and LM35 temperature signal, validates the sensor-health loop, and controls the relay driver. A low relay-drive output opens the contactor and removes motor power.
@@ -73,8 +79,12 @@ The scenario harness in [`simulation/run_scenarios.py`](simulation/run_scenarios
 | `src/motor_protection.ino` | Arduino firmware for detection, trip, indication, and serial logging |
 | `simulation/run_scenarios.py` | Deterministic software model of the three fault injections |
 | `data/fault_events_oee.csv` | Generated fault log using the OEE dashboard's common CSV fields |
+| `wokwi/diagram.json` | Importable Wokwi circuit layout |
+| `wokwi/sketch.ino` | Self-contained Wokwi Arduino sketch |
+| `wokwi/wokwi.toml` | Wokwi CLI/project metadata |
 | `docs/circuit.mmd` | Source for the system circuit diagram |
 | `docs/proteus-build-notes.md` | Proteus wiring and setup notes |
+| `docs/wokwi-test-evidence.md` | Browser-based verification procedure and expected evidence |
 | `docs/oee-integration.md` | File-based handoff to the OEE dashboard |
 | `tests/test_scenarios.py` | Regression tests for threshold and response behavior |
 | `assets/circuit.png` | Rendered circuit overview |

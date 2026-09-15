@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "author": "Robiul Islam Rabby",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 10, "left": 0, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "current", "top": 30, "left": 300, "attrs": { "value": "215" } },
+    { "type": "wokwi-potentiometer", "id": "temperature", "top": 170, "left": 300, "attrs": { "value": "430" } },
+    { "type": "wokwi-relay-module", "id": "contactor", "top": 20, "left": 570, "attrs": { "transistor": "pnp" } },
+    { "type": "wokwi-switch", "id": "health", "top": 300, "left": 300, "attrs": { "color": "blue", "bounce": "0" } },
+    { "type": "wokwi-led", "id": "run", "top": 120, "left": 690, "attrs": { "color": "green", "label": "RUN" } },
+    { "type": "wokwi-led", "id": "fault", "top": 190, "left": 690, "attrs": { "color": "red", "label": "FAULT" } },
+    { "type": "wokwi-resistor", "id": "rRun", "top": 145, "left": 620, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "rFault", "top": 215, "left": 620, "attrs": { "value": "220" } },
+    { "type": "wokwi-led", "id": "load", "top": 90, "left": 820, "attrs": { "color": "yellow", "label": "MOTOR LOAD" } },
+    { "type": "wokwi-resistor", "id": "rLoad", "top": 115, "left": 760, "attrs": { "value": "220" } }
+  ],
+  "connections": [
+    [ "current:VCC", "uno:5V", "red", [] ],
+    [ "current:GND", "uno:GND.1", "black", [] ],
+    [ "current:SIG", "uno:A0", "orange", [] ],
+    [ "temperature:VCC", "uno:5V", "red", [] ],
+    [ "temperature:GND", "uno:GND.1", "black", [] ],
+    [ "temperature:SIG", "uno:A1", "orange", [] ],
+    [ "health:1", "uno:2", "blue", [] ],
+    [ "health:2", "uno:GND.2", "black", [] ],
+    [ "contactor:VCC", "uno:5V", "red", [] ],
+    [ "contactor:GND", "uno:GND.2", "black", [] ],
+    [ "contactor:IN", "uno:8", "purple", [] ],
+    [ "contactor:COM", "uno:5V", "red", [] ],
+    [ "contactor:NO", "rLoad:1", "red", [] ],
+    [ "rLoad:2", "load:A", "red", [] ],
+    [ "load:C", "uno:GND.2", "black", [] ],
+    [ "uno:9", "fault:A", "green", [] ],
+    [ "fault:C", "rFault:1", "green", [] ],
+    [ "rFault:2", "uno:GND.2", "black", [] ],
+    [ "uno:10", "run:A", "green", [] ],
+    [ "run:C", "rRun:1", "green", [] ],
+    [ "rRun:2", "uno:GND.2", "black", [] ]
+  ],
+  "serialMonitor": { "display": "always", "newline": "lf", "convertEol": true }
+}
