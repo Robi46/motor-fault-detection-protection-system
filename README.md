@@ -12,6 +12,8 @@ The power path is deliberately separated from the control path. The motor curren
 
 The source diagram is available at [`docs/circuit.mmd`](docs/circuit.mmd), and the Proteus implementation notes are in [`docs/proteus-build-notes.md`](docs/proteus-build-notes.md).
 
+The repository currently contains a simulation-ready reference design, not a captured Proteus run. Proteus is not installed in the development environment used to prepare this repository, so no `.pdsprj` file or virtual-terminal screenshot is being presented as real Proteus evidence. The expected behavior is verified by the deterministic Python harness below. A Proteus installation can use the wiring notes to build the circuit and capture the corresponding terminal output.
+
 ## Protection logic
 
 | Signal | Pin | Engineering interpretation | Trip condition |
@@ -29,7 +31,7 @@ FAULT,t=200ms,cause=OVERCURRENT,current=8.40A,temp=31.5C,action=CONTACTOR_OPEN
 
 ## Scenario results and root-cause diagnosis
 
-The scenario harness in [`simulation/run_scenarios.py`](simulation/run_scenarios.py) models the same decision order as the Arduino firmware. Run it with `python3 simulation/run_scenarios.py`.
+The scenario harness in [`simulation/run_scenarios.py`](simulation/run_scenarios.py) models the same decision order as the Arduino firmware. Run it with `python3 simulation/run_scenarios.py`. It can also export a CSV for the OEE dashboard with `python3 simulation/run_scenarios.py --csv data/fault_events_oee.csv`. See [`docs/oee-integration.md`](docs/oee-integration.md) for the import workflow.
 
 | Scenario | Injected condition | Detection | Response | Root cause and resolution |
 |---|---|---|---|---|
@@ -56,24 +58,34 @@ The scenario harness in [`simulation/run_scenarios.py`](simulation/run_scenarios
 
 6. In Proteus, reproduce each scenario by increasing the current-sensor input, raising the LM35-equivalent voltage, or opening the sensor-health loop. Compare the virtual-terminal event with the expected result table.
 
+7. Export the same three events for the OEE dashboard:
+
+   ```bash
+   python3 simulation/run_scenarios.py --csv data/fault_events_oee.csv
+   ```
+
+   Upload `data/fault_events_oee.csv` to the OEE dashboard described in [`docs/oee-integration.md`](docs/oee-integration.md).
+
 ## Repository layout
 
 | Path | Contents |
 |---|---|
 | `src/motor_protection.ino` | Arduino firmware for detection, trip, indication, and serial logging |
 | `simulation/run_scenarios.py` | Deterministic software model of the three fault injections |
+| `data/fault_events_oee.csv` | Generated fault log using the OEE dashboard's common CSV fields |
 | `docs/circuit.mmd` | Source for the system circuit diagram |
 | `docs/proteus-build-notes.md` | Proteus wiring and setup notes |
+| `docs/oee-integration.md` | File-based handoff to the OEE dashboard |
 | `tests/test_scenarios.py` | Regression tests for threshold and response behavior |
 | `assets/circuit.png` | Rendered circuit overview |
 
 ## Limitations and next steps
 
-This repository provides a simulation-ready reference design rather than a safety-certified industrial controller. A production implementation would require galvanic isolation, certified overload protection, debounce and filtering, watchdog recovery, fault-history storage, a manual reset circuit, and validation against the selected motor's electrical and thermal limits. The next portfolio iteration could add a Proteus project file, captured virtual-terminal screenshots, and a dashboard that parses the serial event stream into an event timeline.
+This repository provides a simulation-ready reference design rather than a safety-certified industrial controller. A production implementation would require galvanic isolation, certified overload protection, debounce and filtering, watchdog recovery, fault-history storage, a manual reset circuit, and validation against the selected motor's electrical and thermal limits. The next validation step is to open the design in Proteus, save the `.pdsprj`, and commit real virtual-terminal captures for all three scenarios.
 
 ## License
 
-This project is provided for educational and portfolio use. Add a project-specific license before redistributing it as a public GitHub repository.
+This project is licensed under the [MIT License](LICENSE).
 
 ## References
 

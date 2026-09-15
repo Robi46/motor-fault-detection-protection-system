@@ -1,0 +1,4 @@
+timestamp,availability,performance,quality,downtime_minutes,downtime_cause,downtime_type,cause,reason,current_a,temperature_c,action,source
+scenario-overcurrent,0,100,100,1,OVERCURRENT,PROTECTION_TRIP,OVERCURRENT,Overcurrent detected at 200 ms,8.40,31.5,CONTACTOR_OPEN,arduino-protection-simulation
+scenario-overheating,0,100,100,1,OVERHEATING,PROTECTION_TRIP,OVERHEATING,Overheating detected at 200 ms,3.10,76.2,CONTACTOR_OPEN,arduino-protection-simulation
+scenario-sensor-malfunction,0,100,100,1,SENSOR_MALFUNCTION,PROTECTION_TRIP,SENSOR_MALFUNCTION,Sensor malfunction detected at 100 ms,2.80,35.1,CONTACTOR_OPEN,arduino-protection-simulation

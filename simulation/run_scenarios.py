@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Reproducible behavioral model for the Arduino motor protection logic."""
+import argparse
+import csv
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 OVERCURRENT_A = 7.0
@@ -47,17 +50,54 @@ def scenarios() -> list[Result]:
     ]
 
 
+def export_csv(results: list[Result], output: Path) -> None:
+    """Write one row per detected event using fields recognized by the OEE dashboard."""
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=[
+            "timestamp", "availability", "performance", "quality",
+            "downtime_minutes", "downtime_cause", "downtime_type", "cause", "reason",
+            "current_a", "temperature_c", "action", "source",
+        ])
+        writer.writeheader()
+        for result in results:
+            event_ms = result.detected_ms or 0
+            event = next((s for s in result.samples if s.t_ms == event_ms), result.samples[-1])
+            writer.writerow({
+                "timestamp": f"scenario-{result.name.lower().replace(' ', '-')}",
+                "availability": 0,
+                "performance": 100,
+                "quality": 100,
+                "downtime_minutes": 1,
+                "downtime_cause": result.cause or "NONE",
+                "downtime_type": "PROTECTION_TRIP" if result.cause else "NONE",
+                "cause": result.cause or "NONE",
+                "reason": f"{result.name} detected at {event_ms} ms",
+                "current_a": f"{event.current_a:.2f}",
+                "temperature_c": f"{event.temp_c:.1f}",
+                "action": result.action,
+                "source": "arduino-protection-simulation",
+            })
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--csv", type=Path, help="Export detected events to an OEE-compatible CSV")
+    args = parser.parse_args()
+    results = scenarios()
     print("Motor Fault-Detection & Protection System - scenario run")
     print("Thresholds: current >= %.1f A | temperature >= %.1f C" % (OVERCURRENT_A, OVERTEMP_C))
     print("-" * 72)
-    for result in scenarios():
+    for result in results:
         print(f"SCENARIO: {result.name}")
         for sample in result.samples:
             health = "OK" if sample.sensor_healthy else "OPEN/INVALID"
             print(f"  t={sample.t_ms:>4} ms | I={sample.current_a:>4.1f} A | T={sample.temp_c:>4.1f} C | sensor={health}")
         print(f"  RESULT: t={result.detected_ms} ms | cause={result.cause} | action={result.action}")
         print()
+    if args.csv:
+        export_csv(results, args.csv)
+        print(f"CSV exported: {args.csv}")
 
 if __name__ == "__main__":
     main()
